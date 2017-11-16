@@ -1,0 +1,57 @@
+{
+  "name": "rikimaru",
+  "displayName": "rikimaru",
+  "description": "Code searcher for `cosmos` from within VS Code",
+  "version": "0.0.1",
+  "publisher": "sidmishraw",
+  "engines": {
+    "vscode": "^1.18.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onCommand:rikimaru.search"],
+  "main": "./extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "rikimaru.search",
+        "title": "rikimaru: Search cosmos with rikimaru :)"
+      }
+    ],
+    "configuration": [
+      {
+        "type": "object",
+        "title": "rikimaru configurations",
+        "properties": {
+          "rikimaru.user.github.name": {
+            "type": "string",
+            "description": "Your GitHub username goes here!",
+            "default": "github-user-name-here"
+          },
+          "rikimaru.user.github.personal-token": {
+            "type": "string",
+            "description": "Your Github personal API token",
+            "default": "github-API-personal-token"
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "typescript": "^2.6.1",
+    "vscode": "^1.1.6",
+    "eslint": "^4.6.1",
+    "@types/node": "^7.0.43",
+    "@types/mocha": "^2.2.42"
+  },
+  "dependencies": {
+    "async": "^2.6.0",
+    "lodash": "^4.17.4",
+    "request": "^2.83.0"
+  },
+  "extensionDependencies": [],
+  "license": "MIT"
+}

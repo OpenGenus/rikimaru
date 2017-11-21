@@ -17,7 +17,7 @@ const _ = require("lodash");
 const path = require("path");
 const vscode = require("vscode");
 //# imports commonjs style
-
+const rikiBrowser = require("./riki-browser");
 //---------------------------------------------------------------------------------------
 
 // The default search string
@@ -39,7 +39,9 @@ let defaultSearchString = "dfs";
 function fetchResults(searchString, callback) {
   //# user's configurations
   const username = vscode.workspace.getConfiguration("rikimaru").get("user.github.name");
-  const userToken = vscode.workspace.getConfiguration("rikimaru").get("user.github.personal-token");
+  const userToken = vscode.workspace
+    .getConfiguration("rikimaru")
+    .get("user.github.personal-token");
   //# user's configurations
 
   if (!searchString) searchString = defaultSearchString;
@@ -49,7 +51,9 @@ function fetchResults(searchString, callback) {
 
   //# Data fetch
   Request.get(
-    `https://api.github.com/search/code?q=${encodeURIComponent(searchString)}+in:file+repo:OpenGenus/cosmos`,
+    `https://api.github.com/search/code?q=${encodeURIComponent(
+      searchString
+    )}+in:file+repo:OpenGenus/cosmos`,
     {
       auth: {
         user: username,
@@ -82,7 +86,10 @@ function processResults(results, callback) {
   let pResults_temp = JSON.parse(results);
 
   //# no items found scenario
-  if (!pResults_temp["items"] || (pResults_temp["items"] && pResults_temp["items"].length === 0))
+  if (
+    !pResults_temp["items"] ||
+    (pResults_temp["items"] && pResults_temp["items"].length === 0)
+  )
     return callback("No items to display!");
   //# no items found scenario
 
@@ -152,7 +159,11 @@ function displayResults(pResults, callback) {
       function showQuickPickToUser(callback) {
         //# let the user select the option
         vscode.window
-          .showQuickPick(pResults.map(p => `${p["name"]} located at: ${path.join("cosmos", p["path"])}`))
+          .showQuickPick(
+            pResults.map(
+              p => `${p["name"]} located at: ${path.join("cosmos", p["path"])}`
+            )
+          )
           .then(value => callback(null, value), reason => console.log(reason));
         //# let the user select the option
       },
@@ -181,19 +192,33 @@ function displayResults(pResults, callback) {
 
         // console.log(name, resourcePath, resourcePathSansCosmosInitial);
 
-        const matchingResouces = pResults.filter(r => r["path"] === resourcePathSansCosmosInitial);
+        const matchingResouces = pResults.filter(
+          r => r["path"] === resourcePathSansCosmosInitial
+        );
 
         if (matchingResouces.length < 1) return; // base case #3 --- unexpected
 
         const resourceURL = matchingResouces[0]["url"]; // the URL to open in the browser
 
         // console.log(resourceURL);
+        // const { spawnSync } = require("child_process");
+        // let node_modules_path = __dirname.split(path.sep);
+        // node_modules_path.splice(-1);
+        // node_modules_path = node_modules_path.join(path.sep) + path.sep + "node_modules";
+        // const electron_spawn = spawnSync(
+        //   path.join(node_modules_path, "electron", "cli.js"),
+        //   [path.join(__dirname, "riki-browser.js")]
+        // );
+        // rikiBrowser.appInit();
+        // rikiBrowser.createWindow(resourceURL);
 
         vscode.commands
           .executeCommand(
             "vscode.open",
             vscode.Uri.parse(resourceURL),
-            vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : vscode.ViewColumn.One
+            vscode.window.activeTextEditor
+              ? vscode.window.activeTextEditor.viewColumn
+              : vscode.ViewColumn.One
           ) //"vscode.previewHtml", --- was planning to use it, but the API is not clear - super muddy
           .then(success => {}, (err, reason) => console.log(err, reason));
         //# open user's selection in the default browser
@@ -219,8 +244,20 @@ function search(searchString) {
 
   //# async waterfall for control flow
   async.waterfall(
-    [callback => callback(null, searchString), fetchResults, processResults, displayResults],
-    (err, result) => console.log(`Error: ${JSON.stringify(err, null, 4)}, Result: ${JSON.stringify(result, null, 4)}`)
+    [
+      callback => callback(null, searchString),
+      fetchResults,
+      processResults,
+      displayResults
+    ],
+    (err, result) =>
+      console.log(
+        `Error: ${JSON.stringify(err, null, 4)}, Result: ${JSON.stringify(
+          result,
+          null,
+          4
+        )}`
+      )
   );
   //# async waterfall for control flow
 }
